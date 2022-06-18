@@ -8,6 +8,10 @@ const DeckSchema = new mongoose.Schema({
   theme: {
     type: String,
   },
+  isPublic: {
+    type: Boolean,
+    required: true,
+  },
   cards: [
     {
       front: {
