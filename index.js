@@ -7,6 +7,7 @@ const deckModel = require("./models/Deck");
 const validator = require("validator");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
+const ObjectId = require('mongodb').ObjectId;
 
 const app = express();
 const port = 3001; // Must be different than the port of the React app
@@ -31,6 +32,14 @@ app.use(express.json()); // Allows express to read a request body
 // Configuring body parser middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
+//paul
+app.get("/decks/:id", async (req, res) => {
+  const id = req.params.id;
+  console.log(id);
+  const deck = await deckModel.find({ _id: ObjectId(id) });
+  res.send(deck);
+});
 
 app.listen(port, () =>
   console.log(`Hello world app listening on port ${port}!`)
