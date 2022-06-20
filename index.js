@@ -7,7 +7,7 @@ const deckModel = require("./models/Deck");
 const validator = require("validator");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
-const ObjectId = require('mongodb').ObjectId;
+const ObjectId = require("mongodb").ObjectId;
 
 const app = express();
 const port = 3001; // Must be different than the port of the React app
@@ -96,8 +96,8 @@ app.post("/user", async (req, res) => {
   }
 });
 
-app.post("/user/createDeck/:email", async (req, res) => {
-  const email = req.params.email;
+app.post("/createCustomizeDeck/", async (req, res) => {
+  const id = req.body.id;
   const title = req.body.title;
   const cards = req.body.cards;
   const deck = {
@@ -107,10 +107,10 @@ app.post("/user/createDeck/:email", async (req, res) => {
   };
   try {
     await deckModel.create(deck);
-    const user = await userModel.findOne({ email: email });
+    const user = await userModel.findOne({ _id: id });
     const fetchedDeck = await deckModel.findOne({ title: title });
     user.decks.push({
-      lastScore: 0,
+      lastScore: null,
       fetchedDeck,
     });
     await user.save();
@@ -127,7 +127,7 @@ app.post("/addDeck/:email/:title", async (req, res) => {
     const user = await userModel.findOne({ email: email });
     const deck = await deckModel.findOne({ title: title });
     user.decks.push({
-      lastScore: 0,
+      lastScore: null,
       deck,
     });
     await user.save();
@@ -170,11 +170,27 @@ app.get("/decks", async (req, res) => {
   }
 });
 
-app.post("/user", async (req, res) => {
-  const email = req.body.email;
+app.post("/getuser", async (req, res) => {
+  const id = req.body.id;
   try {
-    const user = await userModel.findOne({ email: email });
+    const user = await userModel.findOne({ _id: id });
     res.send(user);
+  } catch (error) {
+    console.log(error.message);
+  }
+});
+
+app.post("/userDecks", async (req, res) => {
+  const id = req.body.id;
+  try {
+    const user = await userModel.findOne({ _id: id });
+    const decksId = user.decks;
+    decks = [];
+    decksId.forEach((data) => {
+      deck = deckModel.findOne({ _id: data.deck });
+      decks.push([deck, data.lastScore]);
+    });
+    res.send(decks);
   } catch (error) {
     console.log(error.message);
   }
@@ -244,7 +260,7 @@ app.post("/users/login", async (request, response) => {
         if (isSame) {
           console.log("Successful login");
 
-          response.send({ success: true });
+          response.send(user);
 
           return;
         }
