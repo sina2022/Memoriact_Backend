@@ -6,6 +6,7 @@ const userModel = require("./models/User");
 const deckModel = require("./models/Deck");
 const validator = require("validator");
 const bcrypt = require("bcrypt");
+const { response } = require("express");
 const saltRounds = 10;
 const ObjectId = require("mongodb").ObjectId;
 
@@ -106,12 +107,12 @@ app.post("/createCustomizeDeck/", async (req, res) => {
     cards: cards,
   };
   try {
-    await deckModel.create(deck);
+    const createdDeck = await deckModel.create(deck);
     const user = await userModel.findOne({ _id: id });
-    const fetchedDeck = await deckModel.findOne({ title: title });
+    //  const fetchedDeck = deckModel.findOne({ title: title });
     user.decks.push({
       lastScore: null,
-      fetchedDeck,
+      deck: createdDeck,
     });
     await user.save();
     res.send(user);
@@ -184,12 +185,15 @@ app.post("/userDecks", async (req, res) => {
   const id = req.body.id;
   try {
     const user = await userModel.findOne({ _id: id });
-    const decksId = user.decks;
+
+    /*   const decksId = user.decks;
     decks = [];
     decksId.forEach((data) => {
       deck = deckModel.findOne({ _id: data.deck });
       decks.push([deck, data.lastScore]);
-    });
+    }); */
+
+    const decks = user.decks;
     res.send(decks);
   } catch (error) {
     console.log(error.message);
