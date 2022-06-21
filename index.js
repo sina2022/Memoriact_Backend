@@ -60,6 +60,23 @@ app.post("/newDeck", async (req, res) => {
   }
 });
 
+app.post("/newDeckWithCards", async (req, res) => {
+  const title = req.body.title;
+  const cards = req.body.cards;
+  const deck = {
+    title: title,
+    isPublic: true,
+    cards: cards,
+  };
+  try {
+    await deckModel.create(deck);
+
+    res.send(deck);
+  } catch (error) {
+    console.log(error.message);
+  }
+});
+
 app.post("/newCard/:title", async (req, res) => {
   const title = req.params.title;
   const front = req.body.front;
@@ -214,7 +231,7 @@ app.post("/users/register", async (request, response) => {
     if (user) {
       console.log("Invalid registration - email " + email + " already exists.");
 
-      response.send({ success: false });
+      response.send({ message: " email  already exists." });
 
       return;
     } else {
