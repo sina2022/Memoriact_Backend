@@ -276,3 +276,13 @@ app.post("/users/login", async (request, response) => {
 
   response.send({ success: false });
 });
+
+
+app.put("/decks", async (req, res) => {
+  const deck = req.body.deck;
+  ;
+  const results = await deckModel.replaceOne({ _id: deck._id }, deck);
+  console.log("matched: " + results.matchedCount);
+  console.log("modified: " + results.modifiedCount);
+  res.send(results);
+});
