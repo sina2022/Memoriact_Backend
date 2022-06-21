@@ -60,6 +60,23 @@ app.post("/newDeck", async (req, res) => {
   }
 });
 
+app.post("/newDeckWithCards", async (req, res) => {
+  const title = req.body.title;
+  const cards = req.body.cards;
+  const deck = {
+    title: title,
+    isPublic: true,
+    cards: cards,
+  };
+  try {
+    await deckModel.create(deck);
+
+    res.send(deck);
+  } catch (error) {
+    console.log(error.message);
+  }
+});
+
 app.post("/newCard/:title", async (req, res) => {
   const title = req.params.title;
   const front = req.body.front;
@@ -138,15 +155,39 @@ app.post("/addDeck/:email/:title", async (req, res) => {
   }
 });
 
-app.post("/addScore/:email", async (req, res) => {
-  const email = req.params.email;
+app.post("/addDeckToUser", async (req, res) => {
+  const userId = req.body.userId;
+  const deckId = req.body.deckId;
+
+  try {
+    const user = await userModel.findOne({ _id: userId });
+    const deck = await deckModel.findOne({ _id: deckId });
+    user.decks.push({
+      lastScore: null,
+      deck,
+    });
+    await user.save();
+    res.send(user);
+  } catch (error) {
+    console.log(error.message);
+  }
+});
+
+app.post("/addScore/", async (req, res) => {
+  const userId = req.body.userId;
   const lastScore = req.body.lastScore;
   const id = req.body.id;
   try {
-    const user = await userModel.findOne({ email: email });
-    const userdeck = await user.decks.id(id);
-    userdeck.lastScore = lastScore;
+    const user = await userModel.findOne({ _id: userId });
+    console.log(user);
+    // const userdeck = user.decks.id(id);
+    user.decks.id(id).lastScore = lastScore;
+    // console.log(userdeck);
+    // const fetchedLastScore=userdeck.lastScore;
+
+    //userdeck.lastScore = lastScore;
     await user.save();
+
     res.send(user);
   } catch (error) {
     console.log(error.message);
@@ -214,7 +255,7 @@ app.post("/users/register", async (request, response) => {
     if (user) {
       console.log("Invalid registration - email " + email + " already exists.");
 
-      response.send({ success: false });
+      response.send({ message: " email  already exists." });
 
       return;
     } else {
