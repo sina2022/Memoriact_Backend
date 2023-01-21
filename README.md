@@ -4,7 +4,7 @@
  This is a web-based flashcard application, built using the MERN stack (MongoDB, Express.js, React, Node.js)
 
 # Installation
-Clone the repository: git clone https://github.com/YOUR_USERNAME/memoriact.git
+Clone the repository: git clone https://github.com/sina2022/Memoriact_Backend
 
 Navigate to the project directory: cd memoriact
 
